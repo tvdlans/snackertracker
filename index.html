@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SnackerTracker 侍 — De Snack Dojo van Aalsmeer</title>
+  <meta name="description" content="SnackerTracker: de meest epische bestelapp voor Foodmaster Aalsmeer. Stel je bento samen, raadpleeg het orakel, verzamel je clan en volg je snacks als een ware samurai.">
+  <meta name="theme-color" content="#120605">
+  <meta name="color-scheme" content="dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SnackerTracker">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SnackerTracker 侍 — De Snack Dojo van Aalsmeer">
+  <meta property="og:description" content="Frikandellen. Eer. Glorie. Stel je bento samen, roep je clan bijeen en bestel als een ware samurai.">
+  <meta property="og:image" content="https://tvdlans.github.io/snackertracker/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preload" href="fonts/dela-gothic-one-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/brush.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-gated">
+
+<!-- ======================= DE POORT (intro) ======================= -->
+<div id="gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate__half gate__half--top"></div>
+  <div class="gate__half gate__half--bottom"></div>
+  <div class="gate__inner">
+    <div class="gate__sun" aria-hidden="true"></div>
+    <div class="gate__kanji brush" aria-hidden="true">侍</div>
+    <p class="gate__kicker">Aalsmeer · Poldermeesterplein 14</p>
+    <h1 id="gateTitle" class="gate__title"><span>SNACKER</span><span>TRACKER</span></h1>
+    <p class="gate__tag">Frikandellen. Eer. Glorie.</p>
+    <button class="btn btn--gong gate__enter" data-action="enter" data-sound="1">
+      <span class="brush" aria-hidden="true">入</span> Betreed de Dojo
+    </button>
+    <button class="gate__silent" data-action="enter" data-sound="0">of sluip naar binnen, zonder geluid</button>
+  </div>
+  <div class="gate__slash" aria-hidden="true"></div>
+</div>
+
+<!-- ======================= DECOR ======================= -->
+<div class="sky" aria-hidden="true">
+  <div class="sky__sun"></div>
+  <div class="sky__clouds"></div>
+  <svg class="sky__mountains" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+    <path class="m3" d="M0 300 L120 210 L210 260 L330 150 L450 250 L560 190 L700 270 L820 160 L960 240 L1080 170 L1200 250 L1320 190 L1440 240 L1440 420 L0 420Z"/>
+    <path class="m2" d="M0 340 L90 280 L190 320 L300 240 L420 330 L540 270 L640 330 L760 250 L900 330 L1010 280 L1140 340 L1260 270 L1380 320 L1440 300 L1440 420 L0 420Z"/>
+    <path class="m1" d="M0 380 L140 330 L260 370 L380 320 L520 380 L660 340 L800 390 L940 335 L1080 385 L1220 345 L1340 380 L1440 360 L1440 420 L0 420Z"/>
+  </svg>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<canvas id="fxTop" aria-hidden="true"></canvas>
+
+<!-- ======================= HEADER ======================= -->
+<header class="top">
+  <a class="top__logo" href="#top" aria-label="SnackerTracker, naar boven">
+    <span class="seal brush" aria-hidden="true">侍</span>
+    <span class="top__name">SNACKER<b>TRACKER</b></span>
+  </a>
+  <button class="rank-chip" data-action="open-rank" aria-label="Jouw rang bekijken">
+    <span class="rank-chip__kanji brush" id="rankKanji">農民</span>
+    <span class="rank-chip__body">
+      <span class="rank-chip__name" id="rankName">Boerenknecht</span>
+      <span class="rank-chip__bar"><i id="rankBar"></i></span>
+    </span>
+  </button>
+  <div class="top__tools">
+    <button class="icon-btn tracker-chip" id="trackerChip" data-action="open-tracker" hidden aria-label="SnackerTracker openen">
+      <span class="brush">走</span><span id="trackerChipText">--</span>
+    </button>
+    <button class="icon-btn" id="musicBtn" data-action="toggle-music" aria-pressed="false" aria-label="Krijgsmuziek aan/uit" title="Krijgsmuziek">
+      <span class="brush">楽</span>
+    </button>
+    <button class="icon-btn" id="sfxBtn" data-action="toggle-sfx" aria-pressed="true" aria-label="Geluidseffecten aan/uit" title="Geluidseffecten">
+      <span class="brush">音</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ======================= HERO ======================= -->
+  <section class="hero">
+    <div class="lanterns" aria-hidden="true">
+      <div class="lantern" style="--d:0s;--x:6%"><span class="brush">福</span></div>
+      <div class="lantern lantern--sm" style="--d:-1.4s;--x:19%"><span class="brush">食</span></div>
+      <div class="lantern lantern--sm" style="--d:-0.7s;--x:79%"><span class="brush">炸</span></div>
+      <div class="lantern" style="--d:-2.1s;--x:92%"><span class="brush">龍</span></div>
+    </div>
+    <div class="hero__kanji brush" aria-hidden="true" data-action="dragon-poke">龍</div>
+
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="kicker"><span class="brush">道場</span> De Snack Dojo van Aalsmeer</p>
+        <h2 class="hero__title">
+          <span class="hero__line">SNACKER</span>
+          <span class="hero__line hero__line--2">TRACKER</span>
+        </h2>
+        <p class="hero__tag">Frikandellen. <em>Eer.</em> Glorie.</p>
+        <div class="status" id="dojoStatus" role="status">
+          <span class="status__dot"></span><span id="dojoStatusText">De Meester raadpleegt de klok…</span>
+        </div>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#menu" data-action="scroll-menu"><span class="brush" aria-hidden="true">斬</span> Open de Rollen</a>
+          <button class="btn btn--ghost" data-action="open-oracle"><span class="brush" aria-hidden="true">籤</span> Het Orakel</button>
+          <button class="btn btn--ghost" data-action="open-clan"><span class="brush" aria-hidden="true">族</span> Clan-bestelling</button>
+        </div>
+      </div>
+
+      <div class="hero__side">
+        <button class="gong" data-action="gong" aria-label="Sla de gong">
+          <span class="gong__frame" aria-hidden="true"></span>
+          <span class="gong__disc" aria-hidden="true"><span class="brush">響</span></span>
+          <span class="gong__hint">Sla de gong</span>
+        </button>
+      </div>
+    </div>
+
+    <figure class="wisdom">
+      <span class="wisdom__seal brush" aria-hidden="true">師</span>
+      <blockquote id="wisdom">Duizend veldslagen beginnen met één kroket.</blockquote>
+      <figcaption>— Wijsheid van de Meester</figcaption>
+    </figure>
+
+    <dl class="warstats" aria-label="Jouw krijgsstatistieken">
+      <div><dt>Eer</dt><dd id="statHonor">0</dd></div>
+      <div><dt>Bestellingen</dt><dd id="statOrders">0</dd></div>
+      <div><dt>Frikandellen geveld</dt><dd id="statFrik">0</dd></div>
+    </dl>
+  </section>
+
+  <!-- ======================= MENU ======================= -->
+  <nav class="catnav" id="catnav" aria-label="Menucategorieën"></nav>
+  <div id="menu" class="menu"></div>
+
+  <!-- ======================= DE DOJO (info) ======================= -->
+  <section class="dojo" id="dojo" aria-labelledby="dojoTitle">
+    <header class="section-head">
+      <span class="section-head__kanji brush" aria-hidden="true">門</span>
+      <div>
+        <p class="section-head__sub">Info &amp; openingstijden</p>
+        <h2 id="dojoTitle" class="section-head__title">De Poorten van de Dojo</h2>
+      </div>
+    </header>
+    <div class="dojo__grid">
+      <div class="panel">
+        <h3 class="panel__title"><span class="brush">所</span> Waar</h3>
+        <p class="dojo__addr"><strong>Foodmaster Aalsmeer</strong><br>Poldermeesterplein 14<br>1432 JZ Aalsmeer</p>
+        <div class="dojo__links">
+          <a class="btn btn--small" href="https://www.google.com/maps/search/?api=1&amp;query=Foodmaster+Poldermeesterplein+14+Aalsmeer" target="_blank" rel="noopener">Route naar de dojo</a>
+          <a class="btn btn--small" href="tel:+31297366251">Bel 0297 366 251</a>
+          <a class="btn btn--small" href="https://aalsmeer.foodmaster.nl/" target="_blank" rel="noopener">Officiële site</a>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="panel__title"><span class="brush">時</span> Wanneer</h3>
+        <table class="hours" id="hoursTable">
+          <thead><tr><th scope="col">Dag</th><th scope="col">Bezorgen</th><th scope="col">Afhalen</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="fine">Tijden zoals vermeld op de site van de vestiging. Feestdagen kunnen afwijken.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="foot__brand"><span class="brush">侍</span> SnackerTracker</p>
+  <p>Een onofficiële fan-app voor <a href="https://aalsmeer.foodmaster.nl/" target="_blank" rel="noopener">Foodmaster Aalsmeer</a>. Niet verbonden aan Foodmaster.
+    Je bestelling gaat pas naar de snackbar als jij belt of via hun eigen site bestelt.
+    Prijzen zijn indicatief; met <b class="est">≈</b> gemarkeerde prijzen zijn geschat.</p>
+  <p class="foot__egg">Gesmeed met olie en eer · ↑ ↑ ↓ ↓ ← → ← → B A</p>
+</footer>
+
+<!-- ======================= BENTO (winkelmand) ======================= -->
+<button class="bento-fab" id="bentoFab" data-action="open-cart" aria-label="Open je bento">
+  <span class="bento-fab__icon" aria-hidden="true">🍱</span>
+  <span class="bento-fab__count" id="bentoCount">0</span>
+  <span class="bento-fab__total" id="bentoTotal">€ 0,00</span>
+</button>
+
+<div class="drawer" id="cart" aria-hidden="true">
+  <div class="drawer__backdrop" data-action="close-cart"></div>
+  <aside class="drawer__scroll" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="roller roller--top" aria-hidden="true"></div>
+    <div class="drawer__body">
+      <header class="drawer__head">
+        <span class="brush drawer__kanji" aria-hidden="true">弁当</span>
+        <h2 id="cartTitle">Jouw Bento van Eer</h2>
+        <button class="x" data-action="close-cart" aria-label="Sluiten">✕</button>
+      </header>
+      <ul class="cart-list" id="cartList"></ul>
+      <div class="cart-empty" id="cartEmpty">
+        <p class="brush cart-empty__kanji">空</p>
+        <p>Je bento is leeg.<br>Een krijger op een lege maag is geen krijger.</p>
+        <button class="btn btn--small" data-action="close-cart">Naar de rollen</button>
+      </div>
+      <div class="haiku" id="haiku" hidden></div>
+      <footer class="cart-foot" id="cartFoot">
+        <div class="cart-total"><span>Totaal <small>(indicatief)</small></span><strong id="cartTotal">€ 0,00</strong></div>
+        <p class="cart-honor">+<b id="cartHonor">0</b> eer bij voltooiing van het ritueel</p>
+        <div class="cart-actions">
+          <button class="btn btn--small" data-action="haiku"><span class="brush">詩</span> Haiku</button>
+          <button class="btn btn--small" data-action="open-clan"><span class="brush">族</span> Clan</button>
+          <button class="btn btn--small btn--danger" data-action="clear-cart">Leeg</button>
+        </div>
+        <button class="btn btn--primary btn--block" data-action="open-checkout"><span class="brush">儀</span> Naar het Ritueel</button>
+      </footer>
+    </div>
+    <div class="roller roller--bottom" aria-hidden="true"></div>
+  </aside>
+</div>
+
+<!-- ======================= MODALS ======================= -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal__backdrop" data-action="close-modal"></div>
+  <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="x" data-action="close-modal" aria-label="Sluiten">✕</button>
+    <div class="modal__content" id="modalContent"></div>
+  </div>
+</div>
+
+<!-- tracker -->
+<div class="tracker" id="tracker" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="trackerTitle">
+  <button class="x" data-action="close-tracker" aria-label="Sluiten">✕</button>
+  <div class="tracker__inner" id="trackerInner"></div>
+</div>
+
+<!-- omroeper, toasts, rang-ceremonie -->
+<div class="announcer" id="announcer" aria-live="polite"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="ceremony" id="ceremony" aria-hidden="true"></div>
+
+<script src="js/menu.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
